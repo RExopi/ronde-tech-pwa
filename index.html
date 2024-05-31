@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des rondes des techniciens</title>
     <style>
-        body {
+        
+        body
+        
+         {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
@@ -86,6 +89,24 @@
             background-color: #0056b3;
         }
     </style>
+     <style>
+        /* Style des boutons */
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
     <div class="header">
@@ -100,8 +121,18 @@
             <tr>
                 <th>Prénom et nom</th>
                 <td><input type="text" placeholder="Prénom et nom"></td>
+                <th>Fonction</th>
+                <td><input type="text" placeholder="Fonction"></td>
+                <tr>
+                    <th>Prénom et nom</th>
+                    <td><input type="text" placeholder="Prénom et nom"></td>
+                    <th>Fonction</th>
+                <td><input type="text" placeholder="Fonction"></td>
+                
+
             </tr>
-            <tr>
+            <tr><th>Prénom et nom</th>
+                <td><input type="text" placeholder="Prénom et nom"></td>
                 <th>Fonction</th>
                 <td><input type="text" placeholder="Fonction"></td>
             </tr>
@@ -227,7 +258,9 @@
             </tr>
         </table>
 
-        <input type="submit" value="Enregistrer">
+        <button class="button" onclick="downloadPage()">Télécharger cette page</button>
+        <button class="button" onclick="printPage()">Imprimer cette page</button>
+        
     </div>
 
     <script>
@@ -237,5 +270,23 @@
             document.getElementById("datetime").innerHTML = dt.toLocaleString();
         }, 1000);
     </script>
+    <script>
+        function downloadPage() {
+            var htmlContent = document.documentElement.outerHTML;
+            var blob = new Blob([htmlContent], { type: 'text/html' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'ma_page.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+    
+        function printPage() {
+            window.print();
+        }
+    </script>
+    
 </body>
 </html>
