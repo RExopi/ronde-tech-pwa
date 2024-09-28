@@ -4,15 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des rondes des techniciens</title>
+    <!-- Lien vers le manifeste PWA -->
+    <link rel="manifest" href="manifest.json">
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f9f9f9;
+            background-color: #f0f2f5; /* Fond général gris doux */
         }
         .header {
-            background-color: #007bff;
+            background-color: #00509E; /* Bleu foncé subtil */
             color: #fff;
             text-align: center;
             padding: 20px;
@@ -40,7 +42,7 @@
             text-align: left;
         }
         th {
-            background-color: #007bff;
+            background-color: #006D77; /* Bleu clair pour les en-têtes */
             color: #fff;
         }
         td input[type="text"],
@@ -51,20 +53,21 @@
             border: none;
             border-radius: 5px;
             box-sizing: border-box;
+            background-color: #f5f5f5;
         }
         td input[type="text"]:focus,
         td input[type="number"]:focus {
             outline: none;
-            border: 1px solid #007bff;
+            border: 1px solid #00509E; /* Bleu foncé pour le focus */
         }
         .panne {
-            background-color: #ff9999; /* rouge */
+            background-color: #ff686b; /* Rouge vif pour panne */
         }
         .ras {
-            background-color: #99ff99; /* vert */
+            background-color: #6a994e; /* Vert doux pour RAS */
         }
         .report {
-            background-color: #f3e5f5;
+            background-color: #e9f5f8; /* Fond bleu léger */
             padding: 10px;
             border-radius: 5px;
         }
@@ -73,7 +76,7 @@
             width: 100%;
             padding: 10px;
             margin-top: 20px;
-            background-color: #007bff;
+            background-color: #2A9D8F; /* Vert foncé pour les boutons */
             color: #fff;
             border: none;
             border-radius: 5px;
@@ -83,13 +86,13 @@
             text-decoration: none;
         }
         .screenshot-btn:hover {
-            background-color: #0056b3;
+            background-color: #1b6f60;
         }
         .button {
             display: inline-block;
             padding: 10px 20px;
             margin: 10px;
-            background-color: #007bff;
+            background-color: #2A9D8F; /* Vert foncé */
             color: #fff;
             border: none;
             border-radius: 5px;
@@ -98,11 +101,23 @@
         }
 
         .button:hover {
-            background-color: #0056b3;
+            background-color: #1b6f60;
         }
         .signature-pad {
             border: 1px solid #ccc;
             border-radius: 5px;
+        }
+        /* Styles pour le rapport */
+        .rapport-section {
+            margin-bottom: 20px;
+        }
+        .rapport-section textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            resize: vertical;
         }
     </style>
 </head>
@@ -257,52 +272,206 @@
         </table>
 
         <h2>Rapport</h2>
-        <textarea id="rapport" rows="4" placeholder="Entrez le rapport ici" style="width: 100%; padding: 10px; border-radius: 5px; box-sizing: border-box;"></textarea>
+        <div class="rapport-section">
+            <textarea id="rapport" rows="6" placeholder="Entrez le rapport ici"></textarea>
+        </div>
 
         <h2>Signatures</h2>
-        <div id="signature-pad" class="signature-pad" style="width:100%; height:200px; border: 1px solid #ccc;"></div>
-        <button class="button" onclick="clearSignature()">Effacer</button>
+        <canvas id="signature-pad" class="signature-pad" width="100%" height="200"></canvas>
+        <button class="button" onclick="clearSignature()">Effacer la signature</button>
 
-        <button class="button" onclick="downloadPage()">Télécharger cette page</button>
-        <button class="button" onclick="printPage()">Imprimer cette page</button>
-        
+        <button class="button" onclick="downloadReport()">Télécharger le rapport</button>
     </div>
 
     <script>
-        // Afficher la date et l'heure actuelle
-        setInterval(function() {
-            var dt = new Date();
-            document.getElementById("datetime").innerHTML = dt.toLocaleString();
-        }, 1000);
+        // Met à jour l'heure actuelle
+        function updateTime() {
+            var now = new Date();
+            var datetime = now.toLocaleString();
+            document.getElementById('datetime').textContent = datetime;
+        }
 
-        // Télécharger la page
-        function downloadPage() {
-            var htmlContent = document.documentElement.outerHTML;
-            var blob = new Blob([htmlContent], { type: 'text/html' });
-            var url = URL.createObjectURL(blob);
-            var a = document.createElement('a');
+        setInterval(updateTime, 1000); // Mettre à jour chaque seconde
+
+        // Signature Pad
+        let signaturePad;
+        window.onload = function() {
+            const canvas = document.getElementById('signature-pad');
+            signaturePad = new SignaturePad(canvas);
+        }
+
+        function clearSignature() {
+            if (signaturePad) {
+                signaturePad.clear();
+            }
+        }
+
+        // Fonction pour télécharger le rapport
+        function downloadReport() {
+            // Créer un élément HTML pour le rapport
+            const reportContent = `
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Rapport de Ronde</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        h1 { text-align: center; color: #333; }
+                        .section { margin-bottom: 20px; }
+                        table { width: 100%; border-collapse: collapse; }
+                        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+                        th { background-color: #006D77; color: #fff; }
+                        .signature { margin-top: 20px; }
+                        .signature img { max-width: 100%; height: auto; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Rapport de Ronde des Techniciens</h1>
+                    <div class="section">
+                        <strong>Date et Heure :</strong> ${document.getElementById('datetime').textContent}
+                    </div>
+                    <div class="section">
+                        <strong>Informations sur les techniciens :</strong>
+                        ${getTechnicianInfo()}
+                    </div>
+                    <div class="section">
+                        <strong>Fiche de contrôle / Inspection :</strong>
+                        ${getInspectionInfo()}
+                    </div>
+                    <div class="section">
+                        <strong>Heure des machines :</strong>
+                        ${getMachineHoursInfo()}
+                    </div>
+                    <div class="section">
+                        <strong>Rapport :</strong>
+                        <p>${document.getElementById('rapport').value}</p>
+                    </div>
+                    <div class="signature">
+                        <strong>Signature :</strong><br>
+                        ${getSignatureImage()}
+                    </div>
+                </body>
+                </html>
+            `;
+
+            // Créer un blob et télécharger le rapport
+            const blob = new Blob([reportContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
             a.href = url;
-            a.download = 'ma_page.html';
+            a.download = 'rapport_ronde.html';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
         }
-    
-        // Imprimer la page
-        function printPage() {
-            window.print();
+
+        // Fonctions pour récupérer les informations
+        function getTechnicianInfo() {
+            let info = '<table><tr><th>Prénom et nom</th><th>Fonction</th></tr>';
+            const rows = document.querySelectorAll('.container table')[0].querySelectorAll('tr');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td input');
+                if (cells.length === 2) {
+                    info += `<tr><td>${cells[0].value}</td><td>${cells[1].value}</td></tr>`;
+                }
+            });
+            info += '</table>';
+            return info;
         }
 
-        // Signature Pad
-        var canvas = document.getElementById('signature-pad');
-        var signaturePad = new SignaturePad(canvas);
+        function getInspectionInfo() {
+            let info = '<table><tr><th>Tâche</th><th>État</th></tr>';
+            const inspectionTable = document.querySelectorAll('.container table')[1];
+            const rows = inspectionTable.querySelectorAll('tr');
+            rows.forEach((row, index) => {
+                if (index === 0) return; // Skip header
+                const cells = row.querySelectorAll('td');
+                const task = cells[0].textContent.trim();
+                let state = '';
+                const inputs = cells[1].querySelectorAll('input');
+                inputs.forEach(input => {
+                    if (input.checked) {
+                        state = input.value;
+                    }
+                });
+                if (state === '') {
+                    state = 'Non renseigné';
+                }
+                info += `<tr><td>${task}</td><td>${state}</td></tr>`;
+            });
+            info += '</table>';
+            return info;
+        }
 
-        function clearSignature() {
-            signaturePad.clear();
+        function getMachineHoursInfo() {
+            let info = '<table><tr><th>Tâche</th><th>Chiffres</th></tr>';
+            const machineTable = document.querySelectorAll('.container table')[2];
+            const rows = machineTable.querySelectorAll('tr');
+            rows.forEach((row, index) => {
+                if (index === 0) return; // Skip header
+                const cells = row.querySelectorAll('td input');
+                if (cells.length === 1) {
+                    const task = row.querySelectorAll('td')[0].textContent.trim();
+                    const value = cells[0].value || 'Non renseigné';
+                    info += `<tr><td>${task}</td><td>${value}</td></tr>`;
+                }
+            });
+            info += '</table>';
+            return info;
+        }
+
+        function getSignatureImage() {
+            if (signaturePad.isEmpty()) {
+                return 'Aucune signature.';
+            } else {
+                return `<img src="${signaturePad.toDataURL()}" alt="Signature">`;
+            }
+        }
+
+        // Enregistrement du Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('service-worker.js').then(function(registration) {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }, function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
         }
     </script>
 
     <!-- Signature Pad Library -->
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+<script>
+    function validateForm() {
+        const technicianInputs = document.querySelectorAll('.container table tr td input[type="text"]');
+        let valid = true;
+        technicianInputs.forEach(input => {
+            if (input.value.trim() === '') {
+                valid = false;
+                input.style.border = '1px solid red';
+            } else {
+                input.style.border = 'none';
+            }
+        });
+
+        if (!valid) {
+            alert('Veuillez remplir tous les champs des techniciens.');
+        }
+
+        return valid;
+    }
+
+    function downloadReport() {
+        if (!validateForm()) {
+            return;
+        }
+
+        // Le reste de la fonction downloadReport reste inchangé
+        // ...
+    }
+</script>
+
+    
 </body>
 </html>
