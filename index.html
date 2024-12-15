@@ -1,160 +1,167 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des rondes des techniciens</title>
-    <!-- Lien vers le manifeste PWA -->
-    <link rel="manifest" href="manifest.json">
+    <title>GESTION DES RONDES DES TECHNICIENS</title>
+    <!-- Importer Font Awesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f0f2f5; /* Fond général gris doux */
+            background-color: #f0f2f5;
+            color: #333;
         }
         .header {
-            background-color: #00509E; /* Bleu foncé subtil */
+            background-color: #3b5998;
             color: #fff;
             text-align: center;
-            padding: 20px;
+            padding: 20px 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .header h1 {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 0;
+        }
+        .header p {
+            font-size: 1em;
+            margin: 5px 0 0;
         }
         .container {
-            max-width: 800px;
-            margin: 20px auto;
+            max-width: 900px;
+            margin: 30px auto;
             padding: 20px;
             background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
-        h1, h2 {
-            color: #333;
+        h2 {
+            color: #3b5998;
             text-align: center;
+            margin-top: 0;
+            font-size: 1.5em;
         }
         table {
             width: 100%;
-            border-collapse: collapse;
             margin-bottom: 20px;
+            border-collapse: collapse;
         }
         th, td {
             padding: 10px;
-            border-bottom: 1px solid #ccc;
+            border-bottom: 1px solid #ddd;
             text-align: left;
         }
         th {
-            background-color: #006D77; /* Bleu clair pour les en-têtes */
+            background-color: #3b5998;
             color: #fff;
+            font-weight: bold;
         }
         td input[type="text"],
-        td input[type="number"] {
-            width: calc(100% - 20px);
-            padding: 5px;
-            margin: 0;
-            border: none;
-            border-radius: 5px;
-            box-sizing: border-box;
-            background-color: #f5f5f5;
-        }
-        td input[type="text"]:focus,
-        td input[type="number"]:focus {
-            outline: none;
-            border: 1px solid #00509E; /* Bleu foncé pour le focus */
-        }
-        .panne {
-            background-color: #ff686b; /* Rouge vif pour panne */
-        }
-        .ras {
-            background-color: #6a994e; /* Vert doux pour RAS */
-        }
-        .report {
-            background-color: #e9f5f8; /* Fond bleu léger */
-            padding: 10px;
-            border-radius: 5px;
-        }
-        .screenshot-btn {
-            display: block;
+        td input[type="number"],
+        select,
+        textarea {
             width: 100%;
             padding: 10px;
-            margin-top: 20px;
-            background-color: #2A9D8F; /* Vert foncé pour les boutons */
-            color: #fff;
-            border: none;
+            margin: 5px 0;
+            border: 1px solid #ddd;
             border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            text-align: center;
-            text-decoration: none;
+            box-sizing: border-box;
+            font-size: 1em;
         }
-        .screenshot-btn:hover {
-            background-color: #1b6f60;
+        td input[type="text"]:focus,
+        td input[type="number"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #3b5998;
+            outline: none;
+        }
+        .panne {
+            background-color: #e61414;
+        }
+        .ras {
+            background-color: #ccffcc;
         }
         .button {
             display: inline-block;
             padding: 10px 20px;
             margin: 10px;
-            background-color: #2A9D8F; /* Vert foncé */
+            background-color: #3b5998;
             color: #fff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 1em;
             transition: background-color 0.3s ease;
         }
-
         .button:hover {
-            background-color: #1b6f60;
+            background-color: #2d4373;
         }
         .signature-pad {
-            border: 1px solid #ccc;
+            border: 1px solid #ddd;
             border-radius: 5px;
-        }
-        /* Styles pour le rapport */
-        .rapport-section {
-            margin-bottom: 20px;
-        }
-        .rapport-section textarea {
             width: 100%;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            box-sizing: border-box;
-            resize: vertical;
+            height: 250px;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Gestion des rondes des techniciens</h1>
-        <p>POLYTEK spécialiste en tubes PVC</p>
-        <p>Date et heure: <span id="datetime"></span></p>
+        <h1><i class="fas fa-tools"></i> GESTION DES RONDES DES TECHNICIENS</h1>
+        <p><i class="fas fa-calendar-day"></i> Date et Heure : <span id="datetime">28/09/2024 07:36:03</span></p>
     </div>
 
     <div class="container">
-        <h2>Informations sur les techniciens</h2>
+        <!-- Quart de travail et responsable -->
+        <h2>Détails de la Ronde</h2>
+        <table>
+            <tr>
+                <td>
+                    <label for="quart"><i class="fas fa-clock icon"></i> Quart de travail :</label>
+                    <select id="quart" name="quart">
+                        <option value="matin">Matin</option>
+                        <option value="soir">Soir</option>
+                        <option value="nuit">Nuit</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="responsable"><i class="fas fa-user-tie icon"></i> Nom du responsable :</label>
+                    <input type="text" id="responsable" placeholder="Nom du responsable">
+                </td>
+            </tr>
+        </table>
+
+        <!-- Informations sur les techniciens -->
+        <h2>Informations sur les Techniciens</h2>
         <table>
             <tr>
                 <th>Prénom et nom</th>
-                <td><input type="text" placeholder="Prénom et nom"></td>
                 <th>Fonction</th>
+            </tr>
+            <tr>
+                <td><input type="text" placeholder="Prénom et nom"></td>
                 <td><input type="text" placeholder="Fonction"></td>
             </tr>
             <tr>
-                <th>Prénom et nom</th>
                 <td><input type="text" placeholder="Prénom et nom"></td>
-                <th>Fonction</th>
                 <td><input type="text" placeholder="Fonction"></td>
             </tr>
             <tr>
-                <th>Prénom et nom</th>
                 <td><input type="text" placeholder="Prénom et nom"></td>
-                <th>Fonction</th>
                 <td><input type="text" placeholder="Fonction"></td>
             </tr>
         </table>
 
-        <h2>Fiche de contrôle / Inspection</h2>
+        <!-- Fiche de contrôle / Inspections -->
+        <h2>Fiche de Contrôle / Inspections</h2>
         <table>
             <tr>
-                <th>Tâche</th>
+                <th>Tâches</th>
                 <th>État</th>
             </tr>
             <tr>
@@ -212,34 +219,24 @@
                 <td>Vérifiez niveau d'huile des tulipeuses</td>
                 <td>
                     <input type="radio" name="niveau_huile_tulipeuses" value="RAS"> RAS
-                    <input type="radio" name="niveau_huile_tulipeuses" value="PANNE"> PANNE
+                    <input type="radio" name="niveau_huile_tulipeuses" value="BAS"> BAS
                 </td>
             </tr>
             <tr>
-                <td>Vérifiez niveau d'huile des extrudeuses</td>
+                <td>Vérifiez niveau d'huile des extrudeuses</td> 
                 <td>
                     <input type="radio" name="niveau_huile_extrudeuses" value="RAS"> RAS
-                    <input type="radio" name="niveau_huile_extrudeuses" value="PANNE"> PANNE
-                </td>
-            </tr>
-            <tr>
-                <td>Vérifiez la température de l'eau</td>
-                <td><input type="number" placeholder="Chiffres"></td>
-            </tr>
-            <tr>
-                <td>Vérifiez les tulipeuses</td>
-                <td>
-                    <input type="radio" name="verifier_tulipeuses" value="RAS"> RAS
-                    <input type="radio" name="verifier_tulipeuses" value="PANNE"> PANNE
+                    <input type="radio" name="niveau_huile_extrudeuses" value="BAS"> BAS
                 </td>
             </tr>
         </table>
 
-        <h2>Heure des machines (en chiffres)</h2>
+        <!-- Heures des machines -->
+        <h3>Heures des Machines</h3>
         <table>
             <tr>
-                <th>Tâche</th>
-                <th>Chiffres</th>
+                <th>Machines</th>
+                <th>Heures</th>
             </tr>
             <tr>
                 <td>Heure L400 PVC</td>
@@ -271,207 +268,56 @@
             </tr>
         </table>
 
-        <h2>Rapport</h2>
-        <div class="rapport-section">
-            <textarea id="rapport" rows="6" placeholder="Entrez le rapport ici"></textarea>
-        </div>
+        <!-- Rapports supplémentaires -->
+        <h2>Rapports Supplémentaires</h2>
+        <textarea id="rapport-supplementaire" placeholder="Saisissez les détails supplémentaires ici..." rows="4"></textarea>
 
+        <!-- Remarques générales -->
+        <h2>Remarques Générales</h2>
+        <textarea id="remarques-generales" placeholder="Ajouter toute remarque générale ici..." rows="4"></textarea>
+
+        <!-- Signature -->
         <h2>Signatures</h2>
-        <canvas id="signature-pad" class="signature-pad" width="100%" height="200"></canvas>
-        <button class="button" onclick="clearSignature()">Effacer la signature</button>
-
-        <button class="button" onclick="downloadReport()">Télécharger le rapport</button>
+        <canvas id="signature-pad" class="signature-pad"></canvas>
+        <button class="button" id="clear-signature"><i class="fas fa-eraser"></i> Effacer la signature</button>
+        <button class="button" onclick="savePage()"><i class="fas fa-save"></i> Sauvegarder</button>
+        
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
     <script>
-        // Met à jour l'heure actuelle
-        function updateTime() {
-            var now = new Date();
-            var datetime = now.toLocaleString();
-            document.getElementById('datetime').textContent = datetime;
-        }
-
-        setInterval(updateTime, 1000); // Mettre à jour chaque seconde
-
-        // Signature Pad
-        let signaturePad;
-        window.onload = function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const canvas = document.getElementById('signature-pad');
-            signaturePad = new SignaturePad(canvas);
-        }
+            const signaturePad = new SignaturePad(canvas);
 
-        function clearSignature() {
-            if (signaturePad) {
+            // Redimensionner le canvas pour une meilleure résolution
+            function resizeCanvas() {
+                const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                canvas.width = canvas.offsetWidth * ratio;
+                canvas.height = canvas.offsetHeight * ratio;
+                canvas.getContext("2d").scale(ratio, ratio);
+            }
+
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            // Effacer la signature
+            document.getElementById('clear-signature').addEventListener('click', function () {
                 signaturePad.clear();
+            });
+
+            // Fonction pour sauvegarder la page
+            function savePage() {
+                const content = document.body.innerHTML;
+                const blob = new Blob([content], { type: 'text/html' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'rapport_ronde.html';
+                link.click();
             }
-        }
 
-        // Fonction pour télécharger le rapport
-        function downloadReport() {
-            // Créer un élément HTML pour le rapport
-            const reportContent = `
-                <html>
-                <head>
-                    <meta charset="UTF-8">
-                    <title>Rapport de Ronde</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; padding: 20px; }
-                        h1 { text-align: center; color: #333; }
-                        .section { margin-bottom: 20px; }
-                        table { width: 100%; border-collapse: collapse; }
-                        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-                        th { background-color: #006D77; color: #fff; }
-                        .signature { margin-top: 20px; }
-                        .signature img { max-width: 100%; height: auto; }
-                    </style>
-                </head>
-                <body>
-                    <h1>Rapport de Ronde des Techniciens</h1>
-                    <div class="section">
-                        <strong>Date et Heure :</strong> ${document.getElementById('datetime').textContent}
-                    </div>
-                    <div class="section">
-                        <strong>Informations sur les techniciens :</strong>
-                        ${getTechnicianInfo()}
-                    </div>
-                    <div class="section">
-                        <strong>Fiche de contrôle / Inspection :</strong>
-                        ${getInspectionInfo()}
-                    </div>
-                    <div class="section">
-                        <strong>Heure des machines :</strong>
-                        ${getMachineHoursInfo()}
-                    </div>
-                    <div class="section">
-                        <strong>Rapport :</strong>
-                        <p>${document.getElementById('rapport').value}</p>
-                    </div>
-                    <div class="signature">
-                        <strong>Signature :</strong><br>
-                        ${getSignatureImage()}
-                    </div>
-                </body>
-                </html>
-            `;
-
-            // Créer un blob et télécharger le rapport
-            const blob = new Blob([reportContent], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'rapport_ronde.html';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }
-
-        // Fonctions pour récupérer les informations
-        function getTechnicianInfo() {
-            let info = '<table><tr><th>Prénom et nom</th><th>Fonction</th></tr>';
-            const rows = document.querySelectorAll('.container table')[0].querySelectorAll('tr');
-            rows.forEach(row => {
-                const cells = row.querySelectorAll('td input');
-                if (cells.length === 2) {
-                    info += `<tr><td>${cells[0].value}</td><td>${cells[1].value}</td></tr>`;
-                }
-            });
-            info += '</table>';
-            return info;
-        }
-
-        function getInspectionInfo() {
-            let info = '<table><tr><th>Tâche</th><th>État</th></tr>';
-            const inspectionTable = document.querySelectorAll('.container table')[1];
-            const rows = inspectionTable.querySelectorAll('tr');
-            rows.forEach((row, index) => {
-                if (index === 0) return; // Skip header
-                const cells = row.querySelectorAll('td');
-                const task = cells[0].textContent.trim();
-                let state = '';
-                const inputs = cells[1].querySelectorAll('input');
-                inputs.forEach(input => {
-                    if (input.checked) {
-                        state = input.value;
-                    }
-                });
-                if (state === '') {
-                    state = 'Non renseigné';
-                }
-                info += `<tr><td>${task}</td><td>${state}</td></tr>`;
-            });
-            info += '</table>';
-            return info;
-        }
-
-        function getMachineHoursInfo() {
-            let info = '<table><tr><th>Tâche</th><th>Chiffres</th></tr>';
-            const machineTable = document.querySelectorAll('.container table')[2];
-            const rows = machineTable.querySelectorAll('tr');
-            rows.forEach((row, index) => {
-                if (index === 0) return; // Skip header
-                const cells = row.querySelectorAll('td input');
-                if (cells.length === 1) {
-                    const task = row.querySelectorAll('td')[0].textContent.trim();
-                    const value = cells[0].value || 'Non renseigné';
-                    info += `<tr><td>${task}</td><td>${value}</td></tr>`;
-                }
-            });
-            info += '</table>';
-            return info;
-        }
-
-        function getSignatureImage() {
-            if (signaturePad.isEmpty()) {
-                return 'Aucune signature.';
-            } else {
-                return `<img src="${signaturePad.toDataURL()}" alt="Signature">`;
-            }
-        }
-
-        // Enregistrement du Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('service-worker.js').then(function(registration) {
-                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                }, function(err) {
-                    console.log('ServiceWorker registration failed: ', err);
-                });
-            });
-        }
-    </script>
-
-    <!-- Signature Pad Library -->
-    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
-<script>
-    function validateForm() {
-        const technicianInputs = document.querySelectorAll('.container table tr td input[type="text"]');
-        let valid = true;
-        technicianInputs.forEach(input => {
-            if (input.value.trim() === '') {
-                valid = false;
-                input.style.border = '1px solid red';
-            } else {
-                input.style.border = 'none';
-            }
+            window.savePage = savePage;
         });
-
-        if (!valid) {
-            alert('Veuillez remplir tous les champs des techniciens.');
-        }
-
-        return valid;
-    }
-
-    function downloadReport() {
-        if (!validateForm()) {
-            return;
-        }
-
-        // Le reste de la fonction downloadReport reste inchangé
-        // ...
-    }
-</script>
-
-    
+    </script>
 </body>
 </html>
