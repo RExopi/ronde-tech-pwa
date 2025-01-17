@@ -1,17 +1,47 @@
-self.addEventListener('install', (e) => {
-  e.waitUntil(
-    caches.open('maintenance-store').then((cache) => cache.addAll([
-      '/',
-      '/index.html',
-      '/style.css',
-      '/script.js',
-      'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css'
-    ]))
+const CACHE_NAME = 'rondes-app-v1';
+const ASSETS = [
+  '/',
+  '/index.html',
+  '/style.css',
+  '/app.js',
+  '/icon-192x192.png',
+  '/icon-512x512.png'
+];
+
+// Étape 1 : Installer le Service Worker et mettre en cache les assets
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => {
+        console.log('Ouverture du cache');
+        return cache.addAll(ASSETS);
+      })
   );
 });
 
-self.addEventListener('fetch', (e) => {
-  e.respondWith(
-    caches.match(e.request).then((response) => response || fetch(e.request))
+// Étape 2 : Intercepter les requêtes réseau
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request)
+      .then((response) => {
+        // Retourner la réponse en cache si elle existe, sinon faire une requête réseau
+        return response || fetch(event.request);
+      })
+  );
+});
+
+// Étape 3 : Activer le Service Worker et nettoyer les anciens caches
+self.addEventListener('activate', (event) => {
+  const cacheWhitelist = [CACHE_NAME];
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (!cacheWhitelist.includes(cacheName)) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
   );
 });
