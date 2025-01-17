@@ -4,8 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GESTION DES RONDES DES TECHNICIENS</title>
-    <!-- Importer Font Awesome pour les icônes -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#3b5998">
+    <link rel="icon" type="image/png" href="icon-192x192.png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.1.0/docx.min.js"></script>
+    <script src="app.js" defer></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -108,179 +113,195 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1><i class="fas fa-tools"></i> GESTION DES RONDES DES TECHNICIENS</h1>
-        <p><i class="fas fa-calendar-day"></i> Date et Heure : <span id="datetime">28/09/2024 07:36:03</span></p>
+    <!-- Page de connexion -->
+    <div id="login-page" class="container">
+        <h2>Connexion</h2>
+        <form id="login-form">
+            <label for="username">Nom d'utilisateur :</label>
+            <input type="text" id="username" class="form-control" required>
+            <label for="password">Mot de passe :</label>
+            <input type="password" id="password" class="form-control" required>
+            <button type="submit" class="button">Se connecter</button>
+        </form>
     </div>
 
-    <div class="container">
-        <!-- Quart de travail et responsable -->
-        <h2>Détails de la Ronde</h2>
-        <table>
-            <tr>
-                <td>
-                    <label for="quart"><i class="fas fa-clock icon"></i> Quart de travail :</label>
-                    <select id="quart" name="quart">
-                        <option value="matin">Matin</option>
-                        <option value="soir">Soir</option>
-                        <option value="nuit">Nuit</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <label for="responsable"><i class="fas fa-user-tie icon"></i> Nom du responsable :</label>
-                    <input type="text" id="responsable" placeholder="Nom du responsable">
-                </td>
-            </tr>
-        </table>
+    <!-- Page principale (cachée par défaut) -->
+    <div id="main-page" style="display: none;">
+        <div class="header">
+            <h1>GESTION DES RONDES DES TECHNICIENS</h1>
+            <p><i class="fas fa-calendar-day"></i> Date et Heure : <span id="datetime">28/09/2024 07:36:03</span></p>
+        </div>
 
-        <!-- Informations sur les techniciens -->
-        <h2>Informations sur les Techniciens</h2>
-        <table>
-            <tr>
-                <th>Prénom et nom</th>
-                <th>Fonction</th>
-            </tr>
-            <tr>
-                <td><input type="text" placeholder="Prénom et nom"></td>
-                <td><input type="text" placeholder="Fonction"></td>
-            </tr>
-            <tr>
-                <td><input type="text" placeholder="Prénom et nom"></td>
-                <td><input type="text" placeholder="Fonction"></td>
-            </tr>
-            <tr>
-                <td><input type="text" placeholder="Prénom et nom"></td>
-                <td><input type="text" placeholder="Fonction"></td>
-            </tr>
-        </table>
+        <div class="container">
+            <!-- Quart de travail et responsable -->
+            <h2>Détails de la Ronde</h2>
+            <table>
+                <tr>
+                    <td>
+                        <label for="quart"><i class="fas fa-clock icon"></i> Quart de travail :</label>
+                        <select id="quart" name="quart">
+                            <option value="matin">Matin</option>
+                            <option value="soir">Soir</option>
+                            <option value="nuit">Nuit</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="responsable"><i class="fas fa-user-tie icon"></i> Nom du responsable :</label>
+                        <input type="text" id="responsable" placeholder="Nom du responsable">
+                    </td>
+                </tr>
+            </table>
 
-        <!-- Fiche de contrôle / Inspections -->
-        <h2>Fiche de Contrôle / Inspections</h2>
-        <table>
-            <tr>
-                <th>Tâches</th>
-                <th>État</th>
-            </tr>
-            <tr>
-                <td>Vérifier le niveau du bassin</td>
-                <td>
-                    <input type="radio" name="niveau_bassin" value="RAS"> RAS
-                    <input type="radio" name="niveau_bassin" value="BAS"> BAS
-                </td>
-            </tr>
-            <tr>
-                <td>Purger les condensats des compresseurs et le ballon</td>
-                <td>
-                    <input type="radio" name="condensats_compresseurs" value="RAS"> RAS
-                    <input type="radio" name="condensats_compresseurs" value="PANNE"> PANNE
-                </td>
-            </tr>
-            <tr>
-                <td>Vérifiez la pression d'eau entrée usine</td>
-                <td><input type="number" placeholder="Chiffres"></td>
-            </tr>
-            <tr>
-                <td>Vérifiez la pression d'air entrée usine</td>
-                <td><input type="number" placeholder="Chiffres"></td>
-            </tr>
-            <tr>
-                <td>Vérifiez la pression d'eau entrée extrudeuse</td>
-                <td><input type="number" placeholder="Chiffres"></td>
-            </tr>
-            <tr>
-                <td>Vérifiez les compresseurs si ça marche</td>
-                <td>
-                    <input type="radio" name="compresseurs_fonctionnement" value="RAS"> RAS
-                    <input type="radio" name="compresseurs_fonctionnement" value="PANNE"> PANNE
-                </td>
-            </tr>
-            <tr>
-                <td>Vérifiez les compresseurs froid</td>
-                <td><input type="number" placeholder="Chiffres"></td>
-            </tr>
-            <tr>
-                <td>Broyeur vérifier, contrôler et inspecter</td>
-                <td>
-                    <input type="radio" name="broyeur_verification" value="RAS"> RAS
-                    <input type="radio" name="broyeur_verification" value="PANNE"> PANNE
-                </td>
-            </tr>
-            <tr>
-                <td>Vérifier les coupes</td>
-                <td>
-                    <input type="radio" name="verifier_coupes" value="RAS"> RAS
-                    <input type="radio" name="verifier_coupes" value="PANNE"> PANNE
-                </td>
-            </tr>
-            <tr>
-                <td>Vérifiez niveau d'huile des tulipeuses</td>
-                <td>
-                    <input type="radio" name="niveau_huile_tulipeuses" value="RAS"> RAS
-                    <input type="radio" name="niveau_huile_tulipeuses" value="BAS"> BAS
-                </td>
-            </tr>
-            <tr>
-                <td>Vérifiez niveau d'huile des extrudeuses</td> 
-                <td>
-                    <input type="radio" name="niveau_huile_extrudeuses" value="RAS"> RAS
-                    <input type="radio" name="niveau_huile_extrudeuses" value="BAS"> BAS
-                </td>
-            </tr>
-        </table>
+            <!-- Informations sur les techniciens -->
+            <h2>Informations sur les Techniciens</h2>
+            <table>
+                <tr>
+                    <th>Prénom et nom</th>
+                    <th>Fonction</th>
+                </tr>
+                <tr>
+                    <td><input type="text" placeholder="Prénom et nom"></td>
+                    <td><input type="text" placeholder="Fonction"></td>
+                </tr>
+                <tr>
+                    <td><input type="text" placeholder="Prénom et nom"></td>
+                    <td><input type="text" placeholder="Fonction"></td>
+                </tr>
+                <tr>
+                    <td><input type="text" placeholder="Prénom et nom"></td>
+                    <td><input type="text" placeholder="Fonction"></td>
+                </tr>
+            </table>
 
-        <!-- Heures des machines -->
-        <h3>Heures des Machines</h3>
-        <table>
-            <tr>
-                <th>Machines</th>
-                <th>Heures</th>
-            </tr>
-            <tr>
-                <td>Heure L400 PVC</td>
-                <td><input type="number" placeholder="Chiffres"></td>
-            </tr>
-            <tr>
-                <td>Heure L200 PVC</td>
-                <td><input type="number" placeholder="Chiffres"></td>
-            </tr>
-            <tr>
-                <td>Heure L400 PE</td>
-                <td><input type="number" placeholder="Chiffres"></td>
-            </tr>
-            <tr>
-                <td>Heure L63 PE</td>
-                <td><input type="number" placeholder="Chiffres"></td>
-            </tr>
-            <tr>
-                <td>Ligne annelé</td>
-                <td><input type="number" placeholder="Chiffres"></td>
-            </tr>
-            <tr>
-                <td>H compresseur 1</td>
-                <td><input type="number" placeholder="Chiffres"></td>
-            </tr>
-            <tr>
-                <td>H compresseur 2</td>
-                <td><input type="number" placeholder="Chiffres"></td>
-            </tr>
-        </table>
+            <!-- Fiche de contrôle / Inspections -->
+            <h2>Fiche de Contrôle / Inspections</h2>
+            <table>
+                <tr>
+                    <th>Tâches</th>
+                    <th>État</th>
+                </tr>
+                <tr>
+                    <td>Vérifier le niveau du bassin</td>
+                    <td>
+                        <input type="radio" name="niveau_bassin" value="RAS"> RAS
+                        <input type="radio" name="niveau_bassin" value="BAS"> BAS
+                    </td>
+                </tr>
+                <tr>
+                    <td>Purger les condensats des compresseurs et le ballon</td>
+                    <td>
+                        <input type="radio" name="condensats_compresseurs" value="RAS"> RAS
+                        <input type="radio" name="condensats_compresseurs" value="PANNE"> PANNE
+                    </td>
+                </tr>
+                <tr>
+                    <td>Vérifiez la pression d'eau entrée usine</td>
+                    <td><input type="number" placeholder="Chiffres"></td>
+                </tr>
+                <tr>
+                    <td>Vérifiez la pression d'air entrée usine</td>
+                    <td><input type="number" placeholder="Chiffres"></td>
+                </tr>
+                <tr>
+                    <td>Vérifiez la pression d'eau entrée extrudeuse</td>
+                    <td><input type="number" placeholder="Chiffres"></td>
+                </tr>
+                <tr>
+                    <td>Vérifiez les compresseurs si ça marche</td>
+                    <td>
+                        <input type="radio" name="compresseurs_fonctionnement" value="RAS"> RAS
+                        <input type="radio" name="compresseurs_fonctionnement" value="PANNE"> PANNE
+                    </td>
+                </tr>
+                <tr>
+                    <td>Vérifiez les compresseurs froid</td>
+                    <td><input type="number" placeholder="Chiffres"></td>
+                </tr>
+                <tr>
+                    <td>Broyeur vérifier, contrôler et inspecter</td>
+                    <td>
+                        <input type="radio" name="broyeur_verification" value="RAS"> RAS
+                        <input type="radio" name="broyeur_verification" value="PANNE"> PANNE
+                    </td>
+                </tr>
+                <tr>
+                    <td>Vérifier les coupes</td>
+                    <td>
+                        <input type="radio" name="verifier_coupes" value="RAS"> RAS
+                        <input type="radio" name="verifier_coupes" value="PANNE"> PANNE
+                    </td>
+                </tr>
+                <tr>
+                    <td>Vérifiez niveau d'huile des tulipeuses</td>
+                    <td>
+                        <input type="radio" name="niveau_huile_tulipeuses" value="RAS"> RAS
+                        <input type="radio" name="niveau_huile_tulipeuses" value="BAS"> BAS
+                    </td>
+                </tr>
+                <tr>
+                    <td>Vérifiez niveau d'huile des extrudeuses</td> 
+                    <td>
+                        <input type="radio" name="niveau_huile_extrudeuses" value="RAS"> RAS
+                        <input type="radio" name="niveau_huile_extrudeuses" value="BAS"> BAS
+                    </td>
+                </tr>
+            </table>
 
-        <!-- Rapports supplémentaires -->
-        <h2>Rapports Supplémentaires</h2>
-        <textarea id="rapport-supplementaire" placeholder="Saisissez les détails supplémentaires ici..." rows="4"></textarea>
+            <!-- Heures des machines -->
+            <h3>Heures des Machines</h3>
+            <table>
+                <tr>
+                    <th>Machines</th>
+                    <th>Heures</th>
+                </tr>
+                <tr>
+                    <td>Heure L400 PVC</td>
+                    <td><input type="number" placeholder="Chiffres"></td>
+                </tr>
+                <tr>
+                    <td>Heure L200 PVC</td>
+                    <td><input type="number" placeholder="Chiffres"></td>
+                </tr>
+                <tr>
+                    <td>Heure L400 PE</td>
+                    <td><input type="number" placeholder="Chiffres"></td>
+                </tr>
+                <tr>
+                    <td>Heure L63 PE</td>
+                    <td><input type="number" placeholder="Chiffres"></td>
+                </tr>
+                <tr>
+                    <td>Ligne annelé</td>
+                    <td><input type="number" placeholder="Chiffres"></td>
+                </tr>
+                <tr>
+                    <td>H compresseur 1</td>
+                    <td><input type="number" placeholder="Chiffres"></td>
+                </tr>
+                <tr>
+                    <td>H compresseur 2</td>
+                    <td><input type="number" placeholder="Chiffres"></td>
+                </tr>
+            </table>
 
-        <!-- Remarques générales -->
-        <h2>Remarques Générales</h2>
-        <textarea id="remarques-generales" placeholder="Ajouter toute remarque générale ici..." rows="4"></textarea>
+            <!-- Rapports supplémentaires -->
+            <h2>Rapports Supplémentaires</h2>
+            <textarea id="rapport-supplementaire" placeholder="Saisissez les détails supplémentaires ici..." rows="4"></textarea>
 
-        <!-- Signature -->
-        <h2>Signatures</h2>
-        <canvas id="signature-pad" class="signature-pad"></canvas>
-        <button class="button" id="clear-signature"><i class="fas fa-eraser"></i> Effacer la signature</button>
-        <button class="button" onclick="savePage()"><i class="fas fa-save"></i> Sauvegarder</button>
-        
+            <!-- Remarques générales -->
+            <h2>Remarques Générales</h2>
+            <textarea id="remarques-generales" placeholder="Ajouter toute remarque générale ici..." rows="4"></textarea>
+
+            <!-- Signature -->
+            <h2>Signatures</h2>
+            <canvas id="signature-pad" class="signature-pad"></canvas>
+            <button class="button" id="clear-signature"><i class="fas fa-eraser"></i> Effacer la signature</button>
+            <button class="button" onclick="savePage()"><i class="fas fa-save"></i> Sauvegarder</button>
+            <button class="button" onclick="saveAsPDF()"><i class="fas fa-file-pdf"></i> Enregistrer en PDF</button>
+            <button class="button" onclick="saveAsDOC()"><i class="fas fa-file-word"></i> Enregistrer en DOC</button>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
@@ -316,27 +337,86 @@
             }
 
             window.savePage = savePage;
+
+            // Fonction pour sauvegarder en PDF
+            function saveAsPDF() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                doc.text(document.body.innerText, 10, 10);
+                doc.save('rapport_ronde.pdf');
+            }
+
+            window.saveAsPDF = saveAsPDF;
+
+            // Fonction pour sauvegarder en DOC
+            function saveAsDOC() {
+                const doc = new docx.Document();
+                const paragraph = new docx.Paragraph(document.body.innerText);
+                doc.addSection({ children: [paragraph] });
+                docx.Packer.toBlob(doc).then(blob => {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'rapport_ronde.docx';
+                    link.click();
+                });
+            }
+
+            window.saveAsDOC = saveAsDOC;
+
+            // Fonction pour afficher l'heure dynamique
+            function updateDateTime() {
+                const now = new Date();
+                const formattedDateTime = now.toLocaleString('fr-FR', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                document.getElementById('datetime').textContent = formattedDateTime;
+            }
+
+            // Mettre à jour l'heure chaque seconde
+            setInterval(updateDateTime, 1000);
+
+            // Appeler la fonction immédiatement au chargement
+            updateDateTime();
+
+            // Enregistrer le Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js')
+                    .then(() => console.log('Service Worker enregistré'))
+                    .catch((err) => console.error('Échec de l\'enregistrement du Service Worker', err));
+            }
+
+            // Fonction pour sauvegarder le rapport localement
+            function saveReportLocally(report) {
+                const reports = JSON.parse(localStorage.getItem('reports') || '[]');
+                reports.push(report);
+                localStorage.setItem('reports', JSON.stringify(reports));
+            }
+
+            // Gestion de la connexion
+            const users = [
+                { username: 'admin', password: 'admin123' },
+                { username: 'technicien', password: 'tech123' }
+            ];
+
+            document.getElementById('login-form').addEventListener('submit', function (e) {
+                e.preventDefault();
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+
+                const user = users.find(u => u.username === username && u.password === password);
+                if (user) {
+                    document.getElementById('login-page').style.display = 'none';
+                    document.getElementById('main-page').style.display = 'block';
+                } else {
+                    alert('Nom d\'utilisateur ou mot de passe incorrect.');
+                }
+            });
         });
-        // Fonction pour afficher l'heure dynamique
-function updateDateTime() {
-    const now = new Date();
-    const formattedDateTime = now.toLocaleString('fr-FR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-    });
-    document.getElementById('datetime').textContent = formattedDateTime;
-}
-
-// Mettre à jour l'heure chaque seconde
-setInterval(updateDateTime, 1000);
-
-// Appeler la fonction immédiatement au chargement
-updateDateTime();
-
     </script>
 </body>
 </html>
