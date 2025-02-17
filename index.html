@@ -1,419 +1,770 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>GESTION DES RONDES DES TECHNICIENS</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#3b5998">
     <link rel="icon" type="image/png" href="icon-192x192.png">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.1.0/docx.min.js"></script>
-    <script src="app.js" defer></script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f0f2f5;
-            color: #333;
-        }
-        .header {
-            background-color: #3b5998;
-            color: #fff;
-            text-align: center;
-            padding: 20px 0;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .header h1 {
-            font-size: 2em;
-            font-weight: bold;
-            margin: 0;
-        }
-        .header p {
-            font-size: 1em;
-            margin: 5px 0 0;
-        }
-        .container {
-            max-width: 900px;
-            margin: 30px auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-        h2 {
-            color: #3b5998;
-            text-align: center;
-            margin-top: 0;
-            font-size: 1.5em;
-        }
-        table {
-            width: 100%;
+        /* CSS personnalisé (léger, Bootstrap fait le gros du travail) */
+        body { padding-top: 70px; /* Ajuste pour la navbar fixe */ }
+        .icon { margin-right: 5px; }
+        .btn i { margin-right: 5px; }
+        .report-list { margin-top: 20px; }
+        .report-item { margin-bottom: 10px; }
+        .header-banner {
+            background-color: #e0f7fa; /* Bleu très clair pour la bannière */
+            padding: 15px 0;
             margin-bottom: 20px;
-            border-collapse: collapse;
+            border-bottom: 1px solid #b2ebf2;
         }
-        th, td {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-            text-align: left;
+        .header-banner h1 {
+            color: #004d40; /* Vert foncé pour le titre dans la bannière */
+            margin-bottom: 0;
         }
-        th {
-            background-color: #3b5998;
-            color: #fff;
-            font-weight: bold;
+        .header-banner p {
+            color: #26a69a; /* Vert moyen pour la date/heure */
+            margin-bottom: 0;
         }
-        td input[type="text"],
-        td input[type="number"],
-        select,
-        textarea {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-sizing: border-box;
-            font-size: 1em;
+        .section-title {
+            color: #01579b; /* Bleu foncé pour les titres de section */
+            border-bottom: 2px solid #0277bd;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
         }
-        td input[type="text"]:focus,
-        td input[type="number"]:focus,
-        select:focus,
-        textarea:focus {
-            border-color: #3b5998;
-            outline: none;
+        .etat-select {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 1em;
+            padding-right: 25px;
         }
-        .panne {
-            background-color: #e61414;
+        .etat-select.form-control {
+            padding-right: 35px;
         }
-        .ras {
-            background-color: #ccffcc;
-        }
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            margin: 10px;
-            background-color: #3b5998;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.3s ease;
-        }
-        .button:hover {
-            background-color: #2d4373;
-        }
-        .signature-pad {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            width: 100%;
-            height: 250px;
+        .footer {
+            background-color: #f8f9fa; /* Fond très clair pour le footer */
+            padding: 20px 0;
         }
     </style>
 </head>
 <body>
-    <!-- Page de connexion -->
+
     <div id="login-page" class="container">
-        <h2>Connexion</h2>
-        <form id="login-form">
-            <label for="username">Nom d'utilisateur :</label>
-            <input type="text" id="username" class="form-control" required>
-            <label for="password">Mot de passe :</label>
-            <input type="password" id="password" class="form-control" required>
-            <button type="submit" class="button">Se connecter</button>
-        </form>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <form id="login-form" class="shadow-lg p-4 bg-light border rounded" aria-labelledby="login-heading">
+                    <h2 id="login-heading" class="text-center mb-4"><i class="fas fa-sign-in-alt icon text-primary"></i>Connexion</h2>
+                    <div class="form-group">
+                        <label for="username" aria-required="true"><i class="fas fa-user icon text-info"></i>Nom d'utilisateur :</label>
+                        <input type="text" id="username" class="form-control" required autocomplete="username">
+                        <div id="username-error" class="error text-danger" role="alert">Ce champ est obligatoire.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" aria-required="true"><i class="fas fa-lock icon text-info"></i>Mot de passe :</label>
+                        <input type="password" id="password" class="form-control" required autocomplete="current-password">
+                        <div id="password-error" class="error text-danger" role="alert">Ce champ est obligatoire.</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-sign-in-alt"></i>Se connecter</button>
+                    <div id="login-error" class="error text-danger mt-2 text-center" role="alert" style="display: none;">Nom d'utilisateur ou mot de passe incorrect.</div>
+                </form>
+            </div>
+        </div>
     </div>
 
-    <!-- Page principale (cachée par défaut) -->
     <div id="main-page" style="display: none;">
-        <div class="header">
-            <h1>GESTION DES RONDES DES TECHNICIENS</h1>
-            <p><i class="fas fa-calendar-day"></i> Date et Heure : <span id="datetime">28/09/2024 07:36:03</span></p>
-        </div>
+        <header class="header">
+            <nav class="navbar navbar-expand-lg navbar-dark bg-info fixed-top">
+                <div class="container">
+                    <a class="navbar-brand" href="#"><i class="fas fa-tools icon"></i>GESTION DES RONDES</a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav ml-auto">
+                            <li class="nav-item active">
+                                <a class="nav-link" href="#">Accueil <span class="sr-only">(current)</span></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#formulaire-ronde">Ronde</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#rapports-sauvegardes">Rapports</a>
+                            </li>
+                            <li class="nav-item">
+                                <button id="theme-toggle" class="btn btn-light btn-sm nav-link"><i class="fas fa-moon"></i> Thème</button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            <div class="header-banner">
+                <div class="container text-center">
+                    <h1><i class="fas fa-tools icon"></i>GESTION DES RONDES DES TECHNICIENS</h1>
+                    <p><i class="fas fa-calendar-day icon"></i>Date et Heure : <span id="datetime"></span></p>
+                </div>
+            </div>
+        </header>
 
         <div class="container">
-            <!-- Quart de travail et responsable -->
-            <h2>Détails de la Ronde</h2>
-            <table>
-                <tr>
-                    <td>
-                        <label for="quart"><i class="fas fa-clock icon"></i> Quart de travail :</label>
-                        <select id="quart" name="quart">
-                            <option value="matin">Matin</option>
-                            <option value="soir">Soir</option>
-                            <option value="nuit">Nuit</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label for="responsable"><i class="fas fa-user-tie icon"></i> Nom du responsable :</label>
-                        <input type="text" id="responsable" placeholder="Nom du responsable">
-                    </td>
-                </tr>
-            </table>
+            <form id="reportForm" onsubmit="return false;">
+                <section id="details-ronde" class="mb-4">
+                    <h2 class="section-title"><i class="fas fa-clock icon"></i>Détails de la Ronde</h2>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="quart"><i class="fas fa-clock icon"></i>Quart de travail :</label>
+                                <select class="form-control" id="quart" name="quart" required>
+                                    <option value="matin">Matin</option>
+                                    <option value="soir">Soir</option>
+                                    <option value="nuit">Nuit</option>
+                                </select>
+                                <div id="quart-error" class="error text-danger">Ce champ est obligatoire.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="responsable"><i class="fas fa-user-tie icon"></i>Nom du responsable :</label>
+                                <input type="text" class="form-control" id="responsable" placeholder="Nom du responsable" required>
+                                <div id="responsable-error" class="error text-danger">Ce champ est obligatoire.</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-            <!-- Informations sur les techniciens -->
-            <h2>Informations sur les Techniciens</h2>
-            <table>
-                <tr>
-                    <th>Prénom et nom</th>
-                    <th>Fonction</th>
-                </tr>
-                <tr>
-                    <td><input type="text" placeholder="Prénom et nom"></td>
-                    <td><input type="text" placeholder="Fonction"></td>
-                </tr>
-                <tr>
-                    <td><input type="text" placeholder="Prénom et nom"></td>
-                    <td><input type="text" placeholder="Fonction"></td>
-                </tr>
-                <tr>
-                    <td><input type="text" placeholder="Prénom et nom"></td>
-                    <td><input type="text" placeholder="Fonction"></td>
-                </tr>
-            </table>
+                <section id="techniciens" class="mb-4">
+                    <h2 class="section-title"><i class="fas fa-users icon"></i>Informations sur les Techniciens</h2>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="technicien1"><i class="fas fa-user icon"></i>Technicien 1 :</label>
+                                <input type="text" class="form-control" id="technicien1" placeholder="Prénom et nom" required>
+                                <select id="fonction1" class="form-control mt-2" required>
+                                    <option value="">Fonction</option>
+                                    <option value="Électrotechnicien">Électrotechnicien</option>
+                                    <option value="Électromécanicien">Électromécanicien</option>
+                                    <option value="Électronicien">Électronicien</option>
+                                    <option value="Maintenancier">Maintenancier</option>
+                                    <option value="Mécanicien">Mécanicien</option>
+                                    <option value="Plombier">Plombier</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="technicien2"><i class="fas fa-user icon"></i>Technicien 2 :</label>
+                                <input type="text" class="form-control" id="technicien2" placeholder="Prénom et nom">
+                                <select id="fonction2" class="form-control mt-2">
+                                    <option value="">Fonction</option>
+                                    <option value="Électrotechnicien">Électrotechnicien</option>
+                                    <option value="Électromécanicien">Électromécanicien</option>
+                                    <option value="Électronicien">Électronicien</option>
+                                    <option value="Maintenancier">Maintenancier</option>
+                                    <option value="Mécanicien">Mécanicien</option>
+                                    <option value="Plombier">Plombier</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="technicien3"><i class="fas fa-user icon"></i>Technicien 3 :</label>
+                                <input type="text" class="form-control" id="technicien3" placeholder="Prénom et nom">
+                                <select id="fonction3" class="form-control mt-2">
+                                    <option value="">Fonction</option>
+                                    <option value="Électrotechnicien">Électrotechnicien</option>
+                                    <option value="Électromécanicien">Électromécanicien</option>
+                                    <option value="Électronicien">Électronicien</option>
+                                    <option value="Maintenancier">Maintenancier</option>
+                                    <option value="Mécanicien">Mécanicien</option>
+                                    <option value="Plombier">Plombier</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-            <!-- Fiche de contrôle / Inspections -->
-            <h2>Fiche de Contrôle / Inspections</h2>
-            <table>
-                <tr>
-                    <th>Tâches</th>
-                    <th>État</th>
-                </tr>
-                <tr>
-                    <td>Vérifier le niveau du bassin</td>
-                    <td>
-                        <input type="radio" name="niveau_bassin" value="RAS"> RAS
-                        <input type="radio" name="niveau_bassin" value="BAS"> BAS
-                    </td>
-                </tr>
-                <tr>
-                    <td>Purger les condensats des compresseurs et le ballon</td>
-                    <td>
-                        <input type="radio" name="condensats_compresseurs" value="RAS"> RAS
-                        <input type="radio" name="condensats_compresseurs" value="PANNE"> PANNE
-                    </td>
-                </tr>
-                <tr>
-                    <td>Vérifiez la pression d'eau entrée usine</td>
-                    <td><input type="number" placeholder="Chiffres"></td>
-                </tr>
-                <tr>
-                    <td>Vérifiez la pression d'air entrée usine</td>
-                    <td><input type="number" placeholder="Chiffres"></td>
-                </tr>
-                <tr>
-                    <td>Vérifiez la pression d'eau entrée extrudeuse</td>
-                    <td><input type="number" placeholder="Chiffres"></td>
-                </tr>
-                <tr>
-                    <td>Vérifiez les compresseurs si ça marche</td>
-                    <td>
-                        <input type="radio" name="compresseurs_fonctionnement" value="RAS"> RAS
-                        <input type="radio" name="compresseurs_fonctionnement" value="PANNE"> PANNE
-                    </td>
-                </tr>
-                <tr>
-                    <td>Vérifiez les compresseurs froid</td>
-                    <td><input type="number" placeholder="Chiffres"></td>
-                </tr>
-                <tr>
-                    <td>Broyeur vérifier, contrôler et inspecter</td>
-                    <td>
-                        <input type="radio" name="broyeur_verification" value="RAS"> RAS
-                        <input type="radio" name="broyeur_verification" value="PANNE"> PANNE
-                    </td>
-                </tr>
-                <tr>
-                    <td>Vérifier les coupes</td>
-                    <td>
-                        <input type="radio" name="verifier_coupes" value="RAS"> RAS
-                        <input type="radio" name="verifier_coupes" value="PANNE"> PANNE
-                    </td>
-                </tr>
-                <tr>
-                    <td>Vérifiez niveau d'huile des tulipeuses</td>
-                    <td>
-                        <input type="radio" name="niveau_huile_tulipeuses" value="RAS"> RAS
-                        <input type="radio" name="niveau_huile_tulipeuses" value="BAS"> BAS
-                    </td>
-                </tr>
-                <tr>
-                    <td>Vérifiez niveau d'huile des extrudeuses</td> 
-                    <td>
-                        <input type="radio" name="niveau_huile_extrudeuses" value="RAS"> RAS
-                        <input type="radio" name="niveau_huile_extrudeuses" value="BAS"> BAS
-                    </td>
-                </tr>
-            </table>
+                <section id="fiche-controle" class="mb-4">
+                    <h2 class="section-title"><i class="fas fa-clipboard-check icon"></i>Fiche de Contrôle / Inspections</h2>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="thead-light bg-info text-white">
+                                <tr>
+                                    <th>Tâches</th>
+                                    <th>État</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Vérifiez le niveau du bassin</td>
+                                    <td>
+                                        <select id="etat1" class="form-control etat-select" data-task="bassin">
+                                            <option value="RAS">RAS</option>
+                                            <option value="BAS">BAS</option>
+                                            <option value="VIDE">VIDE</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Purger les condensats des compresseurs et le ballon</td>
+                                    <td>
+                                        <select id="etat2" class="form-control etat-select">
+                                            <option value="RAS">RAS</option>
+                                            <option value="PANNE">PANNE</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Vérifiez les coupes</td>
+                                    <td>
+                                        <select id="etat3" class="form-control etat-select">
+                                            <option value="RAS">RAS</option>
+                                            <option value="PANNE">PANNE</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Vérifiez le broyeur - Contrôle et inspection</td>
+                                    <td>
+                                        <select id="etat4" class="form-control etat-select">
+                                            <option value="RAS">RAS</option>
+                                            <option value="PANNE">PANNE</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Vérifiez les compresseurs - État de fonctionnement</td>
+                                    <td>
+                                        <select id="etat5" class="form-control etat-select">
+                                            <option value="RAS">RAS</option>
+                                            <option value="PANNE">PANNE</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Vérifiez le niveau d'huile des tulipeuses</td>
+                                    <td>
+                                        <select id="etat6" class="form-control etat-select">
+                                            <option value="RAS">RAS</option>
+                                            <option value="BAS">BAS</option>
+                                            <option value="CRITIQUE">CRITIQUE</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Vérifiez le niveau d'huile des extrudeuses</td>
+                                    <td>
+                                        <select id="etat7" class="form-control etat-select">
+                                            <option value="RAS">RAS</option>
+                                            <option value="BAS">BAS</option>
+                                            <option value="CRITIQUE">CRITIQUE</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Vérifiez la pression d'eau entrée usine (bar)</td>
+                                    <td>
+                                        <input type="number" id="pression_eau_usine" class="form-control" placeholder="Pression en bar" step="0.1" required>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Vérifiez la pression d'air entrée usine (bar)</td>
+                                    <td>
+                                        <input type="number" id="pression_air_usine" class="form-control" placeholder="Pression en bar" step="0.1" required>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Vérifiez la pression d'eau entrée extrudeuse (bar)</td>
+                                    <td>
+                                        <input type="number" id="pression_eau_extrudeuse" class="form-control" placeholder="Pression en bar" step="0.1" required>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Vérifiez les compresseurs froid (°C)</td>
+                                    <td>
+                                        <input type="number" id="temperature_compresseur" class="form-control" placeholder="Température en °C" step="0.1" required>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
 
-            <!-- Heures des machines -->
-            <h3>Heures des Machines</h3>
-            <table>
-                <tr>
-                    <th>Machines</th>
-                    <th>Heures</th>
-                </tr>
-                <tr>
-                    <td>Heure L400 PVC</td>
-                    <td><input type="number" placeholder="Chiffres"></td>
-                </tr>
-                <tr>
-                    <td>Heure L200 PVC</td>
-                    <td><input type="number" placeholder="Chiffres"></td>
-                </tr>
-                <tr>
-                    <td>Heure L400 PE</td>
-                    <td><input type="number" placeholder="Chiffres"></td>
-                </tr>
-                <tr>
-                    <td>Heure L63 PE</td>
-                    <td><input type="number" placeholder="Chiffres"></td>
-                </tr>
-                <tr>
-                    <td>Ligne annelé</td>
-                    <td><input type="number" placeholder="Chiffres"></td>
-                </tr>
-                <tr>
-                    <td>H compresseur 1</td>
-                    <td><input type="number" placeholder="Chiffres"></td>
-                </tr>
-                <tr>
-                    <td>H compresseur 2</td>
-                    <td><input type="number" placeholder="Chiffres"></td>
-                </tr>
-            </table>
+                <section id="heures-machines" class="mb-4">
+                    <h3 class="section-title"><i class="fas fa-cogs icon"></i>Heures des Machines</h3>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="thead-light bg-info text-white">
+                                <tr>
+                                    <th>Machines</th>
+                                    <th>Heures</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Heure L400 PVC</td>
+                                    <td><input type="number" id="heure_l400_pvc" class="form-control" placeholder="Chiffres" required></td>
+                                </tr>
+                                <tr>
+                                    <td>Heure L200 PVC</td>
+                                    <td><input type="number" id="heure_l200_pvc" class="form-control" placeholder="Chiffres" required></td>
+                                </tr>
+                                <tr>
+                                    <td>Heure L400 PE</td>
+                                    <td><input type="number" id="heure_l400_pe" class="form-control" placeholder="Chiffres" required></td>
+                                </tr>
+                                <tr>
+                                    <td>Heure L63 PE</td>
+                                    <td><input type="number" id="heure_l63_pe" class="form-control" placeholder="Chiffres" required></td>
+                                </tr>
+                                <tr>
+                                    <td>Ligne Annelé</td>
+                                    <td><input type="number" id="heure_ligne_annele" class="form-control" placeholder="Chiffres" required></td>
+                                </tr>
+                                <tr>
+                                    <td>Heure Compresseur 1</td>
+                                    <td><input type="number" id="heure_compresseur_1" class="form-control" placeholder="Chiffres" required></td>
+                                </tr>
+                                <tr>
+                                    <td>Heure Compresseur 2</td>
+                                    <td><input type="number" id="heure_compresseur_2" class="form-control" placeholder="Chiffres" required></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
 
-            <!-- Rapports supplémentaires -->
-            <h2>Rapports Supplémentaires</h2>
-            <textarea id="rapport-supplementaire" placeholder="Saisissez les détails supplémentaires ici..." rows="4"></textarea>
+                <div class="text-center">
+                    <button class="btn btn-primary" id="saveButton">
+                        <i class="fas fa-save"></i>Sauvegarder
+                    </button>
+                    <button class="btn btn-danger" id="exportButton" data-action="export">
+                        <i class="fas fa-file-pdf"></i>Exporter en PDF
+                    </button>
+                </div>
+            </form>
 
-           
-            <!-- Signature -->
-            <h2>Signatures</h2>
-            <canvas id="signature-pad" class="signature-pad"></canvas>
-            <button class="button" id="clear-signature"><i class="fas fa-eraser"></i> Effacer la signature</button>
-            <button class="button" onclick="savePage()"><i class="fas fa-save"></i> Sauvegarder</button>
-            <button class="button" onclick="saveAsPDF()"><i class="fas fa-file-pdf"></i> Enregistrer en PDF</button>
-            <button class="button" onclick="saveAsDOC()"><i class="fas fa-file-word"></i> Enregistrer en DOC</button>
+            <section id="rapports-sauvegardes" class="report-list mt-5">
+                <h2 class="section-title"><i class="fas fa-history icon"></i>Rapports Sauvegardés</h2>
+                <div id="saved-reports"></div>
+            </section>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
+    <footer class="footer mt-4 text-center text-muted">
+        <div class="container">
+            <p><small>&copy; 2024 Gestion des Rondes - Application Démo</small></p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const canvas = document.getElementById('signature-pad');
-            const signaturePad = new SignaturePad(canvas);
+        // Configuration de la connexion
+        const users = {
+            'admin': 'admin123',
+            'tech': 'tech123'
+        };
 
-            // Redimensionner le canvas pour une meilleure résolution
-            function resizeCanvas() {
-                const ratio = Math.max(window.devicePixelRatio || 1, 1);
-                canvas.width = canvas.offsetWidth * ratio;
-                canvas.height = canvas.offsetHeight * ratio;
-                canvas.getContext("2d").scale(ratio, ratio);
+        // Fonction de connexion
+        function login(username, password) {
+            if (users[username] === password) {
+                document.getElementById('login-page').style.display = 'none';
+                document.getElementById('main-page').style.display = 'block';
+                return true;
+            }
+            return false;
+        }
+
+        // Gestionnaire du formulaire de connexion
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // Réinitialiser les messages d'erreur
+            document.getElementById('username-error').style.display = 'none';
+            document.getElementById('password-error').style.display = 'none';
+            document.getElementById('login-error').style.display = 'none';
+
+            // Vérifier les champs vides
+            let hasError = false;
+            if (!username) {
+                document.getElementById('username-error').style.display = 'block';
+                hasError = true;
+            }
+            if (!password) {
+                document.getElementById('password-error').style.display = 'block';
+                hasError = true;
             }
 
-            resizeCanvas();
-            window.addEventListener('resize', resizeCanvas);
+            if (hasError) return;
 
-            // Effacer la signature
-            document.getElementById('clear-signature').addEventListener('click', function () {
-                signaturePad.clear();
-            });
-
-            // Fonction pour sauvegarder la page
-            function savePage() {
-                const content = document.body.innerHTML;
-                const blob = new Blob([content], { type: 'text/html' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = 'rapport_ronde.html';
-                link.click();
+            // Tenter la connexion
+            if (login(username, password)) {
+                // Mettre à jour la date et l'heure
+                updateDateTime();
+                // Charger les rapports
+                loadSavedReports();
+            } else {
+                document.getElementById('login-error').style.display = 'block';
             }
+        });
 
-            window.savePage = savePage;
+        // Fonction pour mettre à jour la date et l'heure
+        function updateDateTime() {
+            const now = new Date();
+            const options = {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            };
+            document.getElementById('datetime').textContent = now.toLocaleString('fr-FR', options);
+        }
 
-            // Fonction pour sauvegarder en PDF
-            function saveAsPDF() {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-                doc.text(document.body.innerText, 10, 10);
-                doc.save('rapport_ronde.pdf');
-            }
+        // Mettre à jour la date et l'heure toutes les secondes
+        setInterval(updateDateTime, 1000);
 
-            window.saveAsPDF = saveAsPDF;
+        // Gestionnaire du thème sombre (à adapter - pas de thème sombre Bootstrap ici pour simplifier)
+        document.getElementById('theme-toggle').addEventListener('click', function() {
+            alert("Fonctionnalité de thème sombre à adapter avec Bootstrap. Pour simplifier, cette version n'inclut pas le thème sombre Bootstrap. Nous pourrions l'ajouter si vous le souhaitez.");
+            // Pour un thème sombre Bootstrap, il faudrait modifier les classes Bootstrap utilisées et potentiellement ajouter un CSS personnalisé pour les couleurs.
+        });
 
-            // Fonction pour sauvegarder en DOC
-            function saveAsDOC() {
-                const doc = new docx.Document();
-                const paragraph = new docx.Paragraph(document.body.innerText);
-                doc.addSection({ children: [paragraph] });
-                docx.Packer.toBlob(doc).then(blob => {
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(blob);
-                    link.download = 'rapport_ronde.docx';
-                    link.click();
-                });
-            }
+        // Au chargement de la page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cacher la page principale et afficher la page de connexion
+            document.getElementById('main-page').style.display = 'none';
+            document.getElementById('login-page').style.display = 'block';
 
-            window.saveAsDOC = saveAsDOC;
-
-            // Fonction pour afficher l'heure dynamique
-            function updateDateTime() {
-                const now = new Date();
-                const formattedDateTime = now.toLocaleString('fr-FR', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
-                });
-                document.getElementById('datetime').textContent = formattedDateTime;
-            }
-
-            // Mettre à jour l'heure chaque seconde
-            setInterval(updateDateTime, 1000);
-
-            // Appeler la fonction immédiatement au chargement
+            // Mettre à jour la date et l'heure initiale
             updateDateTime();
+        });
 
-            // Enregistrer le Service Worker
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('sw.js')
-                    .then(() => console.log('Service Worker enregistré'))
-                    .catch((err) => console.error('Échec de l\'enregistrement du Service Worker', err));
-            }
-
-            // Fonction pour sauvegarder le rapport localement
-            function saveReportLocally(report) {
-                const reports = JSON.parse(localStorage.getItem('reports') || '[]');
-                reports.push(report);
-                localStorage.setItem('reports', JSON.stringify(reports));
-            }
-
-            // Gestion de la connexion
-            const users = [
-                { username: 'admin', password: 'admin123' },
-                { username: 'technicien', password: 'tech123' }
+        // Ajoutez cette fonction de validation
+        function validateForm() {
+            // Liste des champs obligatoires
+            const requiredFields = [
+                'quart', 'responsable', 'technicien1', 'fonction1',
+                'etat1', 'etat2', 'etat3', 'etat4', 'etat5', 'etat6', 'etat7',
+                'pression_eau_usine', 'pression_air_usine', 'pression_eau_extrudeuse',
+                'temperature_compresseur',
+                'heure_l400_pvc', 'heure_l200_pvc', 'heure_l400_pe', 'heure_l63_pe',
+                'heure_ligne_annele', 'heure_compresseur_1', 'heure_compresseur_2'
             ];
 
-            document.getElementById('login-form').addEventListener('submit', function (e) {
-                e.preventDefault();
-                const username = document.getElementById('username').value;
-                const password = document.getElementById('password').value;
+            let isValid = true;
+            let message = '';
 
-                const user = users.find(u => u.username === username && u.password === password);
-                if (user) {
-                    document.getElementById('login-page').style.display = 'none';
-                    document.getElementById('main-page').style.display = 'block';
+            // Vérifier les champs obligatoires
+            for (const field of requiredFields) {
+                const element = document.getElementById(field);
+                const value = element.value.trim();
+
+                if (!value) {
+                    isValid = false;
+                    element.classList.add('is-invalid'); // Classe Bootstrap pour la validation invalide
+                    message += `Le champ "${field}" est obligatoire\n`;
                 } else {
-                    alert('Nom d\'utilisateur ou mot de passe incorrect.');
+                    element.classList.remove('is-invalid');
+                }
+            }
+
+            // Vérifier les valeurs numériques
+            const pressureFields = ['pression_eau_usine', 'pression_air_usine', 'pression_eau_extrudeuse'];
+            for (const field of pressureFields) {
+                const value = parseFloat(document.getElementById(field).value);
+                if (value < 0) {
+                    isValid = false;
+                    message += `La pression ne peut pas être négative\n`;
+                    document.getElementById(field).classList.add('is-invalid');
+                }
+            }
+
+            // Vérifier la température
+            const temp = parseFloat(document.getElementById('temperature_compresseur').value);
+            if (temp < 0 || temp > 100) {
+                isValid = false;
+                message += `La température doit être entre 0 et 100°C\n`;
+                document.getElementById('temperature_compresseur').classList.add('is-invalid');
+            }
+
+            if (!isValid) {
+                showError('Erreurs de validation:\n' + message);
+                return false;
+            }
+
+            return true;
+        }
+
+        // Fonctions principales
+        async function saveReport() {
+            if (!validateForm()) {
+                return;
+            }
+
+            if (!confirm('Voulez-vous sauvegarder ce rapport ?')) {
+                return;
+            }
+
+            try {
+                const reportData = {
+                    id: Date.now(), // Ajout d'un ID unique
+                    timestamp: new Date().toISOString(),
+                    quart: document.getElementById('quart').value,
+                    responsable: document.getElementById('responsable').value,
+                    technicien1: document.getElementById('technicien1').value,
+                    fonction1: document.getElementById('fonction1').value,
+                    technicien2: document.getElementById('technicien2').value,
+                    fonction2: document.getElementById('fonction2').value,
+                    technicien3: document.getElementById('technicien3').value,
+                    fonction3: document.getElementById('fonction3').value,
+                    etat1: document.getElementById('etat1').value,
+                    etat2: document.getElementById('etat2').value,
+                    etat3: document.getElementById('etat3').value,
+                    etat4: document.getElementById('etat4').value,
+                    etat5: document.getElementById('etat5').value,
+                    etat6: document.getElementById('etat6').value,
+                    etat7: document.getElementById('etat7').value,
+                    pression_eau_usine: document.getElementById('pression_eau_usine').value,
+                    pression_air_usine: document.getElementById('pression_air_usine').value,
+                    pression_eau_extrudeuse: document.getElementById('pression_eau_extrudeuse').value,
+                    temperature_compresseur: document.getElementById('temperature_compresseur').value,
+                    heure_l400_pvc: document.getElementById('heure_l400_pvc').value,
+                    heure_l200_pvc: document.getElementById('heure_l200_pvc').value,
+                    heure_l400_pe: document.getElementById('heure_l400_pe').value,
+                    heure_l63_pe: document.getElementById('heure_l63_pe').value,
+                    heure_ligne_annele: document.getElementById('heure_ligne_annele').value,
+                    heure_compresseur_1: document.getElementById('heure_compresseur_1').value,
+                    heure_compresseur_2: document.getElementById('heure_compresseur_2').value
+                };
+
+                // Récupérer les rapports existants
+                const existingReports = JSON.parse(localStorage.getItem('reports') || '[]');
+
+                // Ajouter le nouveau rapport
+                existingReports.push(reportData);
+
+                // Sauvegarder dans localStorage
+                localStorage.setItem('reports', JSON.stringify(existingReports));
+
+                showSuccess('Rapport sauvegardé avec succès !');
+                document.getElementById('reportForm').reset();
+                await loadSavedReports();
+
+            } catch (error) {
+                console.error('Erreur:', error);
+                showError('Erreur lors de la sauvegarde: ' + error.message);
+            }
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Gestionnaire du bouton de sauvegarde
+            document.getElementById('saveButton').addEventListener('click', function(e) {
+                e.preventDefault();
+                saveReport();
+            });
+
+            // Gestionnaire du bouton d'export
+            document.getElementById('exportButton').addEventListener('click', exportToPDF);
+
+            // Charger les rapports au démarrage
+            loadSavedReports();
+        });
+
+        // Fonctions utilitaires
+        function showSuccess(message) {
+            alert(message);
+        }
+
+        function showError(message) {
+            alert(message);
+        }
+
+        // Ajoutez cette fonction après les autres fonctions
+        async function loadSavedReports() {
+            try {
+                // Simulation de l'API en attendant le backend
+                const reports = JSON.parse(localStorage.getItem('reports') || '[]');
+                const reportsContainer = document.getElementById('saved-reports');
+                reportsContainer.innerHTML = '<h2 class="section-title"><i class="fas fa-history icon"></i>Rapports récents</h2>'; // Titre de section Bootstrap
+
+                if (reports.length === 0) {
+                    reportsContainer.innerHTML += '<p class="text-muted">Aucun rapport sauvegardé</p>';
+                    return;
+                }
+
+                reports.forEach(report => {
+                    const reportItem = createReportItem(report);
+                    reportsContainer.appendChild(reportItem);
+                });
+            } catch (error) {
+                console.error('Erreur de chargement:', error);
+                showError('Impossible de charger les rapports');
+            }
+        }
+
+        // Ajoutez aussi la fonction toggleDetails (inutile dans cette version simplifiée de la liste des rapports)
+        // function toggleDetails(reportId) {
+        // const details = document.getElementById(`details-${reportId}`);
+        // details.classList.toggle('visible');
+        // }
+
+        // Ajoutez cette fonction pour gérer les couleurs des selects
+        function updateSelectColors() {
+            document.querySelectorAll('.etat-select').forEach(select => {
+                const value = select.value;
+                switch(value) {
+                    case 'RAS':
+                        select.style.backgroundColor = '#4CAF50'; // Vert
+                        select.style.color = 'white';
+                        break;
+                    case 'BAS':
+                        select.style.backgroundColor = '#ffc107'; // Jaune Bootstrap (warning)
+                        select.style.color = 'black';
+                        break;
+                    case 'VIDE':
+                    case 'PANNE':
+                    case 'CRITIQUE':
+                        select.style.backgroundColor = '#dc3545'; // Rouge Bootstrap (danger)
+                        select.style.color = 'white';
+                        break;
+                    default:
+                        select.style.backgroundColor = ''; // Couleur par défaut Bootstrap
+                        select.style.color = '';
                 }
             });
+        }
+
+        // Ajoutez ces gestionnaires d'événements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Gestionnaire pour les selects
+            document.querySelectorAll('.etat-select').forEach(select => {
+                select.addEventListener('change', updateSelectColors);
+            });
+
+            // Initialiser les couleurs
+            updateSelectColors();
         });
+
+        // Fonction d'export PDF corrigée (inchangée par rapport à la version précédente)
+        function exportToPDF() {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // En-tête
+                doc.setFontSize(16);
+                doc.text("RAPPORT DE RONDE DES TECHNICIENS", 105, 20, { align: 'center' });
+
+                // Date et informations générales
+                doc.setFontSize(11);
+                doc.text([
+                    `Date: ${new Date().toLocaleDateString('fr-FR')}`,
+                    `Heure: ${new Date().toLocaleTimeString('fr-FR')}`,
+                    `Quart: ${document.getElementById('quart').value}`,
+                    `Responsable: ${document.getElementById('responsable').value}`,
+                    '',
+                    'ÉTAT DES ÉQUIPEMENTS:',
+                    `Niveau du bassin: ${document.getElementById('etat1').value}`,
+                    `État des condensats: ${document.getElementById('etat2').value}`,
+                    `État des coupes: ${document.getElementById('etat3').value}`,
+                    `État du broyeur: ${document.getElementById('etat4').value}`,
+                    `État des compresseurs: ${document.getElementById('etat5').value}`,
+                    `Niveau d'huile des tulipeuses: ${document.getElementById('etat6').value}`,
+                    `Niveau d'huile des extrudeuses: ${document.getElementById('etat7').value}`,
+                    '',
+                    'MESURES:',
+                    `Pression eau usine: ${document.getElementById('pression_eau_usine').value} bar`,
+                    `Pression air usine: ${document.getElementById('pression_air_usine').value} bar`,
+                    `Pression eau extrudeuse: ${document.getElementById('pression_eau_extrudeuse').value} bar`,
+                    `Température compresseur: ${document.getElementById('temperature_compresseur').value}°C`,
+                    '',
+                    'HEURES DES MACHINES:',
+                    `L400 PVC: ${document.getElementById('heure_l400_pvc').value}h`,
+                    `L200 PVC: ${document.getElementById('heure_l200_pvc').value}h`,
+                    `L400 PE: ${document.getElementById('heure_l400_pe').value}h`,
+                    `L63 PE: ${document.getElementById('heure_l63_pe').value}h`,
+                    `Ligne Annelé: ${document.getElementById('heure_ligne_annele').value}h`,
+                    `Compresseur 1: ${document.getElementById('heure_compresseur_1').value}h`,
+                    `Compresseur 2: ${document.getElementById('heure_compresseur_2').value}h`
+                ], 20, 40);
+
+                const fileName = `rapport_ronde_${new Date().toISOString().slice(0,10)}.pdf`;
+                doc.save(fileName);
+
+            } catch (error) {
+                console.error('Erreur lors de la génération du PDF:', error);
+                alert('Une erreur est survenue lors de la génération du PDF. Veuillez réessayer.');
+            }
+        }
+
+        // Ajouter l'écouteur d'événement pour le bouton d'export
+        document.getElementById('exportButton').addEventListener('click', function() {
+            exportToPDF();
+        });
+
+        // Modification de la fonction createReportItem (simplifiée pour Bootstrap et pour la liste)
+        function createReportItem(report) {
+            const reportItem = document.createElement('div');
+            reportItem.className = 'report-item card shadow-sm p-3 mb-3 bg-light'; // Carte Bootstrap légère
+            reportItem.innerHTML = `
+                <div class="report-header d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="report-title card-title mb-0 text-info"> <i class="fas fa-file-alt icon"></i> Ronde du ${new Date(report.timestamp).toLocaleDateString('fr-FR')} - Quart: ${report.quart} </h5>
+                    <span class="report-date text-muted small"> ${new Date(report.timestamp).toLocaleTimeString('fr-FR')} </span>
+                </div>
+                <div class="report-actions text-right">
+                    <button onclick="exportToPDF('${report.id}')" class="btn btn-danger btn-sm"> <i class="fas fa-file-pdf"></i> PDF </button>
+                    <button onclick="deleteReport('${report.id}')" class="btn btn-outline-secondary btn-sm"> <i class="fas fa-trash"></i> Supprimer </button>
+                </div>
+            `;
+            return reportItem;
+        }
+
+        // Ajout de la fonction deleteReport (inchangée)
+        function deleteReport(reportId) {
+            if (!confirm('Voulez-vous vraiment supprimer ce rapport ?')) {
+                return;
+            }
+
+            try {
+                const reports = JSON.parse(localStorage.getItem('reports') || '[]');
+                const updatedReports = reports.filter(report => report.id !== reportId);
+                localStorage.setItem('reports', JSON.stringify(updatedReports));
+                loadSavedReports();
+                showSuccess('Rapport supprimé avec succès');
+            } catch (error) {
+                console.error('Erreur lors de la suppression:', error);
+                showError('Erreur lors de la suppression du rapport');
+            }
+        }
+
+        // Enregistrer le Service Worker (inchangé)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(() => console.log('Service Worker enregistré'))
+                .catch((err) => console.error('Échec de l\'enregistrement du Service Worker', err));
+        }
     </script>
 </body>
 </html>
